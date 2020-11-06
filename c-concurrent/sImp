@@ -1,0 +1,60 @@
+class semaphore {
+  private value
+  privet queue semq
+	semaphore(init):
+	  value = init
+
+  void P(void):
+  	mutex_in()
+  	if(value > 0):
+		value--
+	else
+		readyq.remove(current)
+		semq.enqueue(current)
+	mutex_out()
+
+  void V(void):
+  	mutex_in()
+  	if(!semq.empty())
+		proc = semq.deque()
+		readyq.enqueue(proc)
+	else
+		value++
+	mutex_out()
+}
+
+--------MUTEX_IN--------------------------------------------------MUTEX_OUT
+--------mutex.P						   	  MUTEX_V()
+	spinlock_in() --- QQQ --- spinlock_out()	sl_in --- QQQ --- sl_out
+	***************************************---------***********************
+Vi è ancora busy wait ma questo è limitato alle operazioni sulle code
+class semaphore {
+  private value
+  privet queue semq
+	semaphore(init):
+	  value = init
+
+  void P(void):
+  	mutex_in()
+  	if(value > 0):
+		value--
+	else
+		readyq.remove(current)
+		semq.enqueue(current)
+	mutex_out()
+
+  void V(void):
+  	mutex_in()
+  	if(!semq.empty())
+		proc = semq.deque()
+		readyq.enqueue(proc)
+	else
+		value++
+	mutex_out()
+}
+
+--------MUTEX_IN--------------------------------------------------MUTEX_OUT
+--------mutex.P						   	  MUTEX_V()
+	sl_in() --- QQQ --- sl_out()			sl_in --- QQQ --- sl_out
+	****************************---------------------***********************
+Vi è ancora busy wait ma questo è limitato alle operazioni sulle code

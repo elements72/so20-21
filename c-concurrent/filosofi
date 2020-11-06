@@ -1,0 +1,20 @@
+semaphore chopstick[5] init(1,1,1,1,1)
+process philo(i), i = 0,...,3
+	//think
+	chopstick[i].P()
+	chopstick[(i+1)%5].P()
+	//eat
+	chopstick[i].V()
+	chopstick[(i+1)%5].V()
+
+Il problema consiste nella troppa simmetria, per creare quindi un assimetria supponiamo un filosofo mancino
+
+
+process philo(i), i = 4
+	//think
+	chopstick[i].P()
+	chopstick[(i+1)%5].P()
+	//eat
+	chopstick[(i+1)%5].V()
+	chopstick[i].V()
+

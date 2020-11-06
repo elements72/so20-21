@@ -1,0 +1,29 @@
+semaphore empty(BUFSIZE)
+semaphore full(0)
+semaphore mutex(1)
+shared queue buf
+
+producer: process
+  while True:
+    x = produce()
+    P(empty)
+    mutex.P()
+    buf.queue(x)
+    mutex.V()
+    V(full)
+
+consumer: process
+  while True:
+    P(full)
+    mutex.P()
+    x = buf.dequeu()
+    mutex.V()
+    V(empty)
+    consume(x)
+
+
+class semaphore {
+  semaphore(init)
+  public P(void)
+  public V(void)
+}

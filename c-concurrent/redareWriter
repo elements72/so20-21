@@ -1,0 +1,33 @@
+process reader[i] 
+--------
+	beginread()
+	read()
+	endread()
+ 
+process writer[i] 
+--------
+	beginwrite()
+	write()
+	endwrite()
+
+(nw == 0 && nr >= 0) || (nr == 0 && nw == 1)
+nr = 0, nw = 0
+semaphore rw(1)
+semaphore mutex_r(1)
+beginwrite:
+	rw.P()
+	nw++
+endwrite:
+	nw--	Variabile condivisa l'accesso va eseguito in mutua esclusione
+	rw.V()	
+
+beginread:
+	mutex_r.P()
+	if(nr == 0)	rw.P()
+	nr++
+	mutex_r.V()
+endread:
+	mutex_r.P()
+	nr--
+	if(nr == 0) rw.V()
+	mutex.V()
