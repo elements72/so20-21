@@ -1,0 +1,76 @@
+#!/usr/bin/env python3
+
+'''
+'''
+
+import sys
+import codecs
+writer = codecs.getwriter('latin-1')
+sys.stdout = writer(sys.stdout.buffer)
+
+class op:
+	opnop, opifb, opife, oppr, opin, oppc, operr = 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86
+
+hexd={ 
+	'0':0, '1':1, '2':2, '3':3, '4':4, '5':5, '6':6, '7':7, '8':8, '9':9, 
+	'a':0xa, 'b':0xb, 'c':0xc, 'd':0xd, 'e':0xe, 'f':0xf, 
+	'A':0xa, 'B':0xb, 'C':0xc, 'D':0xd, 'E':0xe, 'F':0xf}
+
+def run(line):
+	global memory
+	pc=0
+	cond=0
+	prefix=0
+	while pc < len(memory):
+		instr = memory[pc]
+		pc += 1
+		if instr == op.opnop:
+			pass
+		elif instr==op.oppr:
+			while memory[pc] != 0:
+				if cond==0: print(chr(memory[pc]),end='')
+				pc += 1
+			pc += 1
+		elif instr==op.oppc:
+			c=0
+			while memory[pc] != 0:
+				c=c*0x10+hexd.get(chr(memory[pc]),0)
+				pc += 1
+			if cond==0: print(chr(c),end='')
+			pc += 1
+		elif instr==op.opin:
+			for i in range(prefix,len(line)):
+				if cond==0: print(chr(line[i]),end='')
+		elif instr==op.opifb:
+			for i in range(prefix,len(line)):
+				if line[i] != memory[pc]: break
+				pc += 1
+				if memory[pc] == 0: break
+			if memory[pc] != 0:
+				cond += 1
+				while memory[pc] != 0: pc += 1
+			else:
+				prefix = i + 1
+			pc += 1
+		elif instr==op.opife:
+			cond -= 1
+			if cond < 0:
+			 	break
+		elif instr==op.operr:
+			if cond==0:
+				print("ERROR", file=sys.stderr)
+				sys.exit(1)
+		else:
+			print("exec file error: wrong architecture", file=sys.stderr);
+			sys.exit(1)
+
+if __name__=="__main__":
+	if len(sys.argv) != 2:
+		print("Usage:\n\t{} program".format(sys.argv[0]))
+		sys.exit(1)
+	with open(sys.argv[1],"rb") as f:
+		memory=f.read()
+	for line in sys.stdin:
+		line=bytes(line[:-1],'utf-8')
+		run(line)
+		sys.stdout.flush()

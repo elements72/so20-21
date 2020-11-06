@@ -1,0 +1,16 @@
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <dirent.h>
+#include <fcntn.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
+void error(char *s){
+	perror(s);
+	return;
+}
+
+int main(int argc, char* argv[]){
+	int d = open(argv[1], O_DIRECTORY | O_RDONLY)
+}

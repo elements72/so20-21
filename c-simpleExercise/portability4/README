@@ -1,0 +1,128 @@
+This is an educational tool to learn compiler portability.
+
+hw0 and hw1 are two different "hardware" architectures.
+Actually they are quite similar, but use different op-codes.
+These "machines" process each input line and apply the rules of the
+running program to each line.
+
+The machine code of hw0 has seven instructions:
+NOP IFBEGIN IFEND PRINT PRINTIN PRINTCHR ERROR
+
+THere are two instruction formats:
+* NOP ERROR, IFEND and PRINTIN take no arguments. These instructions are one 
+byte wide.
+* IFBEGIN, PRINT and PRINTCHR take a string argument. The first byte is
+the opcode, followed the bytes of the string and a null byte terminates the
+instruction.
+
+PRINT: print a string
+PRINTCHR: print a char (the string is an hexadecimal number: the program emits
+	the corresponding char).
+PRINTIN: print the input line
+
+IFBEGIN: the following instructions up to IFEND are processed only if the
+leading part of the input line matches the argument of IFBEGIN.
+A PRINTIN instruction inside an IFBEGIN block prints the remaining part of
+the input line (following the matching prefix).
+
+When an IFBEGIN block matches the input line, the remaining part of the code 
+is skipped.
+
+in HW0 the opcodes are:
+NOP:0 IFBEGIN:1 IFEND:2 PRINT:3 PRINTIN:4 PRINTCHR:5 ERROR:6
+in HW1 the opcodes are:
+NOP:0x80 IFBEGIN:0x81 IFEND:0x82 PRINT:0x83 PRINTIN:0x84 PRINTCHR:0x85 ERROR:0x86
+
+comp0 is a "compiler" for a "higher level" language.
+The instructions are:
+IF:string
+define an "IF" block conditioned by the string
+ENDIF
+close an "IF" block
+PRINT:string
+print the string
+PRINTIN
+print the input line (or the part of the input line following the string
+		matched with the if condition)
+PRINTCHR:(numerical)string
+the string gets converted to an int and then print the corresponding character
+
+Examples:
+p0.src
+PRINT:hello world
+PRINTCHR:A
+
+This program prints a "hello world" for each input line (no matters the contentsof the input lines).
+
+p1.src
+PRINTIN
+PRINTCHR:A
+
+This program copies the input file as is, line by line.
+
+p2.src
+IF:greet
+PRINT:ciao
+PRINTIN
+PRINTCHR:A
+ENDIF
+PRINT:hello world
+PRINTCHR:20
+PRINTIN
+PRINTCHR:A
+
+When this program processes a line like:
+greet renzo
+it returns 
+ciao renzo
+and it prints "hello world" followed by the entire input line otherwise.
+
+It is possible to test the "compiler" (comp0, in python):
+./comp0 <p0.src >p0.0
+./hw0 p0.0
+
+In the same way p1 and p2.
+
+hw1 is not able to run binary programs for hw0:
+./hw1 p0.0
+returns:
+exec file error: wrong architecture
+
+compiler0.src is a compiler for the same language written in our language.
+
+So it is possible to compile compiler0.src using comp0:
+./comp0 <compiler0.src >compiler0.0
+
+Now compiler.0 can be used on hw0 to generate code for hw0:
+./hw0 compiler0.0 <p0.src >p0.0
+
+Now copy compiler0.src to compiler1.src.
+cp compiler0.src compiler1.src
+
+and edit compiler1.src to generate the opcodes of hw1
+IF:IF:
+PRINTCHR:81
+PRINTIN
+PRINTCHR:0
+ENDIF
+IF:ENDIF
+PRINTCHR:82
+ENDIF
+....
+
+Now compile compiler1.src using compiler0.0 on hw0.
+
+hw0 compiler0.0 < compiler1.src > compiler1.0
+
+The binary code compiler1.0 runs on hw0 but it generates code for hw1.
+(This is a cross compiler!)
+
+hw0 compiler1.0 <p0.src > p0.1
+hw1 p0.1
+
+Now it is possible to compile compiler1.src on hw0 using compiler1.0
+hw0 compiler1.0 <compiler1.src > compiler 1.1
+
+This compiler works on hw1 and generates code for hw1
+hw1 compiler1.1 <p0.src > p0.1
+hw1 p0.1
